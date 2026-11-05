@@ -1,0 +1,50 @@
+# Codemagic CI/CD - MediaProjector
+# Workflow 1: APK debug (nessuna firma necessaria, installabile subito sul tablet)
+# Workflow 2: APK release firmato (richiede keystore caricato in Codemagic)
+
+workflows:
+  debug-apk:
+    name: MediaProjector - APK debug
+    instance_type: linux_x2
+    max_build_duration: 30
+    environment:
+      java: 17
+    scripts:
+      - name: Prepara Gradle wrapper (se manca il jar)
+        script: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            TMP=$(mktemp -d)
+            (cd "$TMP" && gradle wrapper --gradle-version 8.13 --distribution-type bin)
+            cp "$TMP/gradlew" "$TMP/gradlew.bat" .
+            mkdir -p gradle/wrapper
+            cp "$TMP/gradle/wrapper/"* gradle/wrapper/
+          fi
+          chmod +x gradlew
+      - name: Build APK debug
+        script: ./gradlew assembleDebug
+    artifacts:
+      - app/build/outputs/apk/debug/*.apk
+
+  release-apk:
+    name: MediaProjector - APK release firmato
+    instance_type: linux_x2
+    max_build_duration: 30
+    environment:
+      java: 17
+      android_signing:
+        - mediaprojector_keystore   # <-- nome del keystore caricato in Codemagic (Team settings > Code signing identities)
+    scripts:
+      - name: Prepara Gradle wrapper (se manca il jar)
+        script: |
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            TMP=$(mktemp -d)
+            (cd "$TMP" && gradle wrapper --gradle-version 8.13 --distribution-type bin)
+            cp "$TMP/gradlew" "$TMP/gradlew.bat" .
+            mkdir -p gradle/wrapper
+            cp "$TMP/gradle/wrapper/"* gradle/wrapper/
+          fi
+          chmod +x gradlew
+      - name: Build APK release
+        script: ./gradlew assembleRelease
+    artifacts:
+      - app/build/outputs/apk/release/*.apk
