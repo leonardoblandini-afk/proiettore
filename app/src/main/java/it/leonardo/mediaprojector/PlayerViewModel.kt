@@ -158,7 +158,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         selectedId = id
     }
 
-    fun setAutoAdvance(value: Boolean) {
+    fun updateAutoAdvance(value: Boolean) {
         autoAdvance = value
         store.saveAutoAdvance(value)
     }

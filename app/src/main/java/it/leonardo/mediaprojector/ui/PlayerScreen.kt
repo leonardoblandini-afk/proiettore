@@ -269,7 +269,7 @@ private fun ControlPanel(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Avanza automaticamente al file successivo", Modifier.weight(1f))
-            Switch(checked = vm.autoAdvance, onCheckedChange = { vm.setAutoAdvance(it) })
+            Switch(checked = vm.autoAdvance, onCheckedChange = { vm.updateAutoAdvance(it) })
         }
     }
 }
